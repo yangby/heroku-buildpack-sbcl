@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# -*- coding: utf-8; mode: Shell-script; fill-column: 76; tab-width: 4; -*-
+# Brief: Provides metadata back to the runtime.
+#       bin/release BUILD_DIR
+
+BUILD_DIR="$1"
+
+cat << EOF
+---
+config_vars:
+    LANG: en_US.UTF-8
+    PATH: root/usr/bin:root/bin:/usr/bin:/bin
+    SBCL_HOME: root/lib/sbcl
+    ASDF_OUTPUT_TRANSLATIONS: '/:'
+EOF

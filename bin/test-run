@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# -*- coding: utf-8; mode: Shell-script; fill-column: 76; tab-width: 4; -*-
+# Brief: Simulate Heroku's run process locally.
+#       bin/test-run REPO_DIR
+
+set -o errexit
+
+function usage () {
+    echo "
+Usage:
+    `basename $0` REPO_DIR
+"
+}
+
+if [ -z "$1" ]; then
+    usage
+    exit 1
+fi
+
+REPO_DIR=$(cd "$1" && pwd)
+SHELL_DIR=$(cd `dirname $0` && pwd)
+TEST_DIR="/tmp/heroku-test"
+
+function log_title () { echo "-----> $*"; }
+function log_content () { echo "       $*"; }
+function log_footer () {
+    log_content "-----     -----     -----     -----     -----"
+    log_content "$*"
+}
+function log_format () { sed -u 's/^/       /'; }
+
+function run () {
+    log_title "Run locally in [${TEST_DIR}] ..."
+    log_content "[Running ...]"
+    cd ${TEST_DIR}
+    log_content "Remove old runtime directory ..."
+    rm -rf runtime 2>&1 > /dev/null
+    if [ -d build ]; then
+        if [ -d build-tmp ]; then
+            log_content "Remove old build directory ..."
+            rm -rf build-tmp 2>&1 > /dev/null
+        fi
+        log_content "Rename build directory ..."
+        mv build build-tmp 2>&1 > /dev/null
+    fi
+    log_content "Copy build to runtime ..."
+    cp -r build-tmp runtime 2>&1 > /dev/null
+    cd runtime
+    export PORT=8000
+    bash run-server.sh \
+        && log_footer "[DONE] Stop successful!" \
+            || log_footer "[DONE] Build Failure!"
+
+}
+
+run

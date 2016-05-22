@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# -*- coding: utf-8; mode: Shell-script; fill-column: 76; tab-width: 4; -*-
+# Brief: Simulate Heroku's compile process locally.
+#       bin/test-compile REPO_DIR
+
+set -o errexit
+
+function usage () {
+    echo "
+Usage:
+    `basename $0` REPO_DIR
+"
+}
+
+if [ -z "$1" ]; then
+    usage
+    exit 1
+fi
+
+REPO_DIR=$(cd "$1" && pwd)
+SHELL_DIR=$(cd `dirname $0` && pwd)
+TEST_DIR="/tmp/heroku-test"
+
+function log_title () {
+    echo "-----> $*"
+}
+
+function log_content () {
+    echo "       $*"
+}
+
+function log_footer () {
+    log_content "-----     -----     -----     -----     -----"
+    log_content "$*"
+}
+
+function log_format () {
+    sed -u 's/^/       /'
+}
+
+function compile () {
+    log_title "Compile locally in [${TEST_DIR}] ..."
+    log_content "[Running ...]"
+    [ -d "${TEST_DIR}/build-tmp" ] \
+        && mv "${TEST_DIR}/build-tmp" "${TEST_DIR}/build" \
+            || mkdir -pv "${TEST_DIR}/build"
+    log_content "Clean build directory ..."
+    for tmp in $(find "${TEST_DIR}/build/" -maxdepth 1 \
+                      ! -name "root" | grep -v "^${TEST_DIR}/build/$"); do
+        rm -rfv ${tmp}
+    done 2>&1 > /dev/null
+    log_content "Copy repository directory ..."
+    for tmp in $(find "${REPO_DIR}/" -maxdepth 1 \
+                      ! -name ".git" \
+                        | grep -v "^${REPO_DIR}/$"); do
+        cp -rv "${tmp}" "${TEST_DIR}/build/"
+    done 2>&1 > /dev/null
+    cd "${TEST_DIR}" && mkdir -p cache env
+    "${SHELL_DIR}/compile" \
+        "${TEST_DIR}/build" "${TEST_DIR}/cache" "${TEST_DIR}/env" \
+        && log_footer "[DONE] Compile successful!" \
+            || log_footer "[DONE] Build Failure!"
+}
+
+compile

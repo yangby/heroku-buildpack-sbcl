@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# -*- coding: utf-8; mode: Shell-script; fill-column: 76; tab-width: 4; -*-
+# Brief: Determines whether to apply this buildpack to an app.
+#       bin/detect BUILD_DIR
+
+BUILD_DIR="$1"
+
+_test_file="${BUILD_DIR}/build.lisp"
+
+if [ -f "${_test_file}" ]; then
+    echo "SBCL-Framework"
+    exit 0
+else
+    exit 1
+fi
