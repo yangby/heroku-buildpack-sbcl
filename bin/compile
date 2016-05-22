@@ -39,6 +39,7 @@ function print_environment () {
 function install_sbcl () {
     log_title "Installing SBCL ..."
     local current_dir="$(pwd)"
+    mkdir -pv ${CACHE_DIR} | log_format
     cd ${CACHE_DIR}
     [ -d "sbcl" ] || mkdir sbcl | log_format
     cd sbcl
