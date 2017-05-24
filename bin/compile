@@ -17,7 +17,7 @@ if [ -f "${ENV_FILE}" ]; then
     source "${ENV_FILE}"
 fi
 
-sbcl_ver="${SBCL_VERSION:-sbcl-1.3.5-x86-64-linux}"
+sbcl_ver="${SBCL_VERSION:-sbcl-1.3.17-x86-64-linux}"
 sbcl_pkg="${sbcl_ver}-binary.tar.bz2"
 ql_file="quicklisp.lisp"
 
